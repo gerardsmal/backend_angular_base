@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,12 +60,12 @@ public class PersoneController {
 
 	}
 	
-	@DeleteMapping("/delete")
-	public ResponseEntity<Object> delete(@RequestBody(required = true) PersoneReq req) {
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<Object> delete(@PathVariable (required = true) Integer id) {
 	    HttpStatus status = HttpStatus.OK;
 	    String response="persona cancellata";
 	    try {
-	    	perS.update(req);
+	    	perS.delete(id);
 	    } catch (Exception e) {
 	        status = HttpStatus.BAD_REQUEST;
 		    response = e.getMessage();	    	        

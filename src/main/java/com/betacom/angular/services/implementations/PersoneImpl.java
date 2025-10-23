@@ -31,10 +31,13 @@ public class PersoneImpl implements PersoneServices{
 		Objects.requireNonNull(req.getNome(), "nome non presente");
 		Objects.requireNonNull(req.getCognome(), "cognome non presente");
 		Objects.requireNonNull(req.getEmail(), "email non presente");
+
+		if (persR.existsByNomeIgnoreCaseAndCognomeIgnoreCase(req.getNome().trim(), req.getCognome().trim()))
+			throw new Exception("Persona presente nel DB");
 		
 		Persone p = new Persone();
-		p.setNome(req.getNome());
-		p.setCognome(req.getCognome());
+		p.setNome(req.getNome().trim());
+		p.setCognome(req.getCognome().trim());
 		p.setEmail(req.getEmail());
 		p.setColore(req.getColore());
 		
@@ -47,20 +50,28 @@ public class PersoneImpl implements PersoneServices{
 		log.debug("update:" + req);
 		Persone pers = persR.findById(req.getId())
 				.orElseThrow(() -> new Exception("Persona non trovata"));
+		String nome = pers.getNome();
+		String cognome = pers.getCognome();
 		
 		Optional.ofNullable(req.getNome()).ifPresent(pers::setNome);
 		Optional.ofNullable(req.getCognome()).ifPresent(pers::setCognome);
 		Optional.ofNullable(req.getEmail()).ifPresent(pers::setEmail);
 		Optional.ofNullable(req.getColore()).ifPresent(pers::setColore);
 		
+		if (!(nome.equalsIgnoreCase(pers.getNome()) && cognome.equalsIgnoreCase(pers.getCognome()))) {
+			if (persR.existsByNomeIgnoreCaseAndCognomeIgnoreCase(pers.getNome().trim(), pers.getCognome().trim()))
+				throw new Exception("Nuova persona inserito presente nel DB");			
+		}
+		
+		
 		persR.save(pers);
 		
 		
 	}
 	@Override
-	public void delete(PersoneReq req) throws Exception {
-		log.debug("delete:" + req);
-		Persone per = persR.findById(req.getId())
+	public void delete(Integer id) throws Exception {
+		log.debug("delete:" + id);
+		Persone per = persR.findById(id)
 				.orElseThrow(() -> new Exception("Persona non trovata"));
 		
 		persR.delete(per);
@@ -86,7 +97,7 @@ public class PersoneImpl implements PersoneServices{
 	public PersoneDTO getById(Integer id) throws Exception {
 		log.debug("getById:" + id);
 		Persone per = persR.findById(id)
-				.orElseThrow(() -> new Exception("Persona non travate"));
+				.orElseThrow(() -> new Exception("Persona non trovato"));
 
 		return PersoneDTO.builder()
 				.id(per.getId())

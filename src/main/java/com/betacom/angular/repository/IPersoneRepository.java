@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.betacom.angular.models.Persone;
 
 public interface IPersoneRepository extends JpaRepository<Persone, Integer>{
-
+	boolean existsByNomeIgnoreCaseAndCognomeIgnoreCase(String nome, String cognome);
 }
