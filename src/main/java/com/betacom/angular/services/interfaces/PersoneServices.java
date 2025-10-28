@@ -2,8 +2,8 @@ package com.betacom.angular.services.interfaces;
 
 import java.util.List;
 
-import com.betacom.angular.dto.PersoneDTO;
-import com.betacom.angular.requests.PersoneReq;
+import com.betacom.angular.dto.inp.PersoneReq;
+import com.betacom.angular.dto.out.PersoneDTO;
 
 public interface PersoneServices {
 	void create (PersoneReq req) throws Exception;

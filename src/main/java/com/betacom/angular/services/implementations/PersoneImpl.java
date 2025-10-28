@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import com.betacom.angular.dto.PersoneDTO;
+import com.betacom.angular.dto.inp.PersoneReq;
+import com.betacom.angular.dto.out.PersoneDTO;
 import com.betacom.angular.models.Persone;
 import com.betacom.angular.repository.IPersoneRepository;
-import com.betacom.angular.requests.PersoneReq;
 import com.betacom.angular.services.interfaces.PersoneServices;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +29,18 @@ public class PersoneImpl implements PersoneServices{
 	public void create(PersoneReq req) throws Exception {
 		log.debug("create:" + req );
 		
-		Objects.requireNonNull(req.getNome(), "nome non presente");
-		Objects.requireNonNull(req.getCognome(), "cognome non presente");
-		Objects.requireNonNull(req.getEmail(), "email non presente");
+		Optional.ofNullable(req.getNome())      // per testare se la viabile é null
+			    .filter(n -> !n.isBlank())      // per testare se la viarible é vuota o space
+			    .orElseThrow(() -> new Exception("nome mancante o vuoto"));
+		
+		Optional.ofNullable(req.getCognome())
+			.filter(n -> !n.isBlank())
+			.orElseThrow(() -> new Exception("cognome mancante o vuoto"));
 
+		Optional.ofNullable(req.getCognome())
+			.filter(n -> !n.isBlank())
+			.orElseThrow(() -> new Exception("email mancante o vuoto"));
+	
 		if (persR.existsByNomeIgnoreCaseAndCognomeIgnoreCase(req.getNome().trim(), req.getCognome().trim()))
 			throw new Exception("Persona presente nel DB");
 		
@@ -50,19 +59,22 @@ public class PersoneImpl implements PersoneServices{
 		log.debug("update:" + req);
 		Persone pers = persR.findById(req.getId())
 				.orElseThrow(() -> new Exception("Persona non trovata"));
+
 		String nome = pers.getNome();
 		String cognome = pers.getCognome();
-		
+
 		Optional.ofNullable(req.getNome()).ifPresent(pers::setNome);
 		Optional.ofNullable(req.getCognome()).ifPresent(pers::setCognome);
 		Optional.ofNullable(req.getEmail()).ifPresent(pers::setEmail);
 		Optional.ofNullable(req.getColore()).ifPresent(pers::setColore);
 		
-		if (!(nome.equalsIgnoreCase(pers.getNome()) && cognome.equalsIgnoreCase(pers.getCognome()))) {
-			if (persR.existsByNomeIgnoreCaseAndCognomeIgnoreCase(pers.getNome().trim(), pers.getCognome().trim()))
+		req.setNome(StringUtils.defaultIfBlank(req.getNome(), nome));
+		req.setCognome(StringUtils.defaultIfBlank(req.getCognome(), cognome));
+						
+		if (!(nome.equalsIgnoreCase(req.getNome()) && cognome.equalsIgnoreCase(req.getCognome()))) {
+			if (persR.existsByNomeIgnoreCaseAndCognomeIgnoreCase(pers.getNome(), pers.getCognome()))
 				throw new Exception("Nuova persona inserito presente nel DB");			
 		}
-		
 		
 		persR.save(pers);
 		

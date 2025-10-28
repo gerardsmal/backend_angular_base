@@ -13,29 +13,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.betacom.angular.dto.inp.PersoneReq;
-import com.betacom.angular.services.interfaces.PersoneServices;
+import com.betacom.angular.dto.inp.UtenteReq;
+import com.betacom.angular.dto.out.LoginDTO;
+import com.betacom.angular.models.Role;
+import com.betacom.angular.services.interfaces.UtenteServices;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/rest/persone")
-public class PersoneController {
+@RequestMapping("/rest/utente")
+public class UtenteController {
 
-	private PersoneServices perS;
-	
-	public PersoneController(PersoneServices perS) {
-		super();
-		this.perS = perS;
+	private UtenteServices utenteS;
+
+	public UtenteController(UtenteServices utenteS) {
+		this.utenteS = utenteS;
 	}
-
 	
 	@PostMapping("/create")
-	public ResponseEntity<Object> create(@RequestBody(required = true) PersoneReq req) {
-	    String response = "Persona creata";
+	public ResponseEntity<Object> create(@RequestBody(required = true) UtenteReq req) {
+	    String response = "created";
 	    HttpStatus status = HttpStatus.OK;
-
 	    try {
-	    	perS.create(req);
+	    	utenteS.create(req);
 	    } catch (Exception e) {
 	        response = e.getMessage();
 	        status = HttpStatus.BAD_REQUEST;
@@ -44,28 +43,40 @@ public class PersoneController {
 	    return ResponseEntity.status(status).body(response);
 	}
 
-
 	@PutMapping("/update")
-	public ResponseEntity<Object> update(@RequestBody(required = true) PersoneReq req) {
+	public ResponseEntity<Object> update(@RequestBody(required = true) UtenteReq req) {
+	    String response = "updated";
 	    HttpStatus status = HttpStatus.OK;
-	    String response="persona aggiornata";
 	    try {
-	    	perS.update(req);
+	    	utenteS.update(req);
 	    } catch (Exception e) {
+	        response = e.getMessage();
 	        status = HttpStatus.BAD_REQUEST;
-		    response = e.getMessage();	    	
-	        
 	    }
-	    return ResponseEntity.status(status).body(response);	    	
+	    return ResponseEntity.status(status).body(response);
+	}
 
+	
+	@PostMapping("/login")
+	public ResponseEntity<Object> login(@RequestBody(required = true) UtenteReq req) {
+	    HttpStatus status = HttpStatus.OK;
+	    Object response = null;
+	    try {
+	    	response = utenteS.singUp(req);
+	    } catch (Exception e) {
+	        response = e.getMessage();
+	        status = HttpStatus.BAD_REQUEST;
+	    }
+
+	    return ResponseEntity.status(status).body(response);
 	}
 	
 	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<Object> delete(@PathVariable (required = true) Integer id) {
 	    HttpStatus status = HttpStatus.OK;
-	    String response="persona cancellata";
+	    String response="cancelled";
 	    try {
-	    	perS.delete(id);
+	    	utenteS.delete(id);
 	    } catch (Exception e) {
 	        status = HttpStatus.BAD_REQUEST;
 		    response = e.getMessage();	    	        
@@ -73,28 +84,31 @@ public class PersoneController {
 	    return ResponseEntity.status(status).body(response);	    	
 
 	}
-
 	
 	
 	@GetMapping("/list")
-	public ResponseEntity<Object> list(){	
+	public ResponseEntity<Object> list(
+			@RequestParam (required = false) String userName,
+			@RequestParam (required = false) String role){	
 		Object response = null; 
 		HttpStatus status = HttpStatus.OK;
 		try {
-			response = perS.list();
+			response = utenteS.list(userName,role);
 		} catch (Exception e) {
 			response = e.getMessage();
 			status = HttpStatus.BAD_REQUEST;
 		}
 		return ResponseEntity.status(status).body(response);
 	}
-
+	
 	@GetMapping("/getById")
-	public ResponseEntity<Object> getById(@RequestParam (required = true) Integer id){	
+	public ResponseEntity<Object> getById(
+			@RequestParam (required = true) Integer id) {
+		
 		Object response = null; 
 		HttpStatus status = HttpStatus.OK;
 		try {
-			response = perS.getById(id);
+			response = utenteS.getById(id);
 		} catch (Exception e) {
 			response = e.getMessage();
 			status = HttpStatus.BAD_REQUEST;

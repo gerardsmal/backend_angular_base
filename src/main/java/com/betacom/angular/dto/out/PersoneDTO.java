@@ -1,15 +1,14 @@
-package com.betacom.angular.requests;
+package com.betacom.angular.dto.out;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
-@Setter
 @Getter
-@ToString
-public class PersoneReq {
-
-	private Integer id;
+@Setter
+@Builder
+public class PersoneDTO {
+	private Integer id;	
 	private String nome;
 	private String cognome;
 	private String email;
